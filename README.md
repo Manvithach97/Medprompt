@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # MedPrompt 🩺 — Clinical Text Structuring with AI
 
 **MedPrompt** is a modular NLP pipeline that converts unstructured clinical notes into structured summaries using biomedical NER and local LLMs.
@@ -20,3 +21,6 @@ cd MedPrompt
 pip install -r requirements.txt
 ollama pull mistral
 streamlit run app.py
+=======
+# Medprompt
+>>>>>>> daf9155b0a3de545dc0256d7bdc28940ae47c2ab
