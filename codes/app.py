@@ -3,6 +3,14 @@ import pandas as pd
 import speech_recognition as sr
 import io
 
+# --------------------------------------------------------------------
+import pytesseract
+from PIL import Image
+
+pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+# --------------------------------------------------------------------
+
+
 from ner import recognize_entities
 from filter import filter_entities
 from explainer import explain_entities
@@ -73,14 +81,47 @@ with st.expander("🎤 Voice Input"):
             st.error(f"Error during transcription: {str(e)}")
     else:
         st.info("Please record your voice to proceed.")
+
+
+# --- Image Input ---
+with st.expander("🖼️ Image Input (OCR)"):
+    st.markdown("Upload an image of a clinical note (PNG, JPG, etc.)")
+
+    uploaded_image = st.file_uploader("Choose an image", type=["png", "jpg", "jpeg"])
+
+    if uploaded_image:
+        image = Image.open(uploaded_image)
+        # st.image(image, caption="Uploaded Image", use_column_width=True)
+        st.image(image, caption="Uploaded Image", use_container_width=True)
+
+
+        try:
+            extracted_text = pytesseract.image_to_string(image)
+            st.success("Extracted Text from Image:")
+            st.text_area("OCR Text", value=extracted_text, height=200)
+
+            if st.button("Use Image Input"):
+                st.session_state["image_text"] = extracted_text
+                st.success("Image input saved! Now click 'Proceed ➡️' to continue.")
+        except Exception as e:
+            st.error(f"OCR failed: {str(e)}")
+
         
 
 
 # --- Main Processing ---
-input_text = clinical_text.strip() if clinical_text.strip() else ""
-voice_text = st.session_state.get("voice_text", "").strip()
+# input_text = clinical_text.strip() if clinical_text.strip() else ""
+# voice_text = st.session_state.get("voice_text", "").strip()
 
-input_text = input_text or voice_text
+# input_text = input_text or voice_text
+
+# Merge all possible inputs: manual, voice, image
+manual_text = clinical_text.strip()
+voice_text = st.session_state.get("voice_text", "").strip()
+image_text = st.session_state.get("image_text", "").strip()
+
+input_text = manual_text or voice_text or image_text
+
 if st.button("Proceed ➡️") and input_text.strip():
     clinical_text = input_text 
     st.markdown("---")
